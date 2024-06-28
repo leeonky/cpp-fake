@@ -1,0 +1,13 @@
+# Path: conftest
+# Arch: x86_64
+# Object files:
+[  0] linker synthesized
+[  1] /var/folders/hb/c3z5g_7s19d6shtgn7br75jw0000gn/T/conftest-aa0a15.o
+# Sections:
+# Address	Size    	Segment	Section
+0x100003FB0	0x00000008	__TEXT	__text
+0x100003FB8	0x00000048	__TEXT	__unwind_info
+# Symbols:
+# Address	Size    	File  Name
+0x100003FB0	0x00000008	[  1] _main
+0x100003FB8	0x00000048	[  0] compact unwind info

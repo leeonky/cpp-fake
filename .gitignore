@@ -1,0 +1,6 @@
+.idea
+cmake-build-debug
+/build/
+cmake_build.
+cpp-fake_tests.txt
+cpp-fake_tests

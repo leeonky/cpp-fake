@@ -1,0 +1,16 @@
+Makefile
+config.h
+config.log
+config.status
+cpputest.pc
+lib
+libtool
+.deps
+.dirstamp
+*.o
+stamp-h1
+CppUTestTests
+CppUTestExtTests
+
+# vc6
+CppUTest.opt
