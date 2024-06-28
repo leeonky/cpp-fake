@@ -76,10 +76,12 @@ public:
     intptr_t offset;
 };
 
+
 class Mocker {
 
 public:
-    Mocker(bool(*original)(), bool(*newFun)()) {
+    template<typename F>
+    Mocker(F original, F newFun) {
         void* originalAddress = (void*)(original);
         void* newAddress = (void*)(newFun);
         intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
