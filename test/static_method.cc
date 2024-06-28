@@ -30,7 +30,7 @@ public:
         void* newAddress = (void*)(newFun);
 
         long pageSize = sysconf(_SC_PAGESIZE);
-        void* pageStart = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(originalAddress) & ~(pageSize - 1));
+        pageStart = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(originalAddress) & ~(pageSize - 1));
 
         if (mprotect(pageStart, pageSize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
             perror("mprotect");
@@ -58,9 +58,19 @@ public:
             *reinterpret_cast<char*>(originalAddress) = 0xEB;
             *(reinterpret_cast<char*>(originalAddress) + 1) = (unsigned char)offset;
         }
+
+        if (mprotect(pageStart, pageSize, PROT_READ | PROT_EXEC) != 0) {
+            perror("mprotect");
+            exit(-1);
+        }
     }
 
     ~Mocker() {
+        long pageSize = sysconf(_SC_PAGESIZE);
+        if (mprotect(pageStart, pageSize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+            perror("mprotect");
+            exit(-1);
+        }
         switch(this->style) {
             case 1:
                 *reinterpret_cast<char*>(originalAddress) = this->command;
@@ -71,6 +81,10 @@ public:
                 *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = this->offset;
                 break;
         }
+        if (mprotect(pageStart, pageSize, PROT_READ | PROT_EXEC) != 0) {
+            perror("mprotect");
+            exit(-1);
+        }
     }
 
 private:
@@ -79,6 +93,7 @@ private:
     char command;
     intptr_t offset;
     char offset_8;
+    void *pageStart;
 };
 
 TEST_GROUP(StaticMethod) {
