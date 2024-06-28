@@ -82,8 +82,20 @@ class Mocker {
 public:
     template<typename F>
     Mocker(F original, F newFun) {
-        void* originalAddress = (void*)(original);
-        void* newAddress = (void*)(newFun);
+        setJump((void*)original, (void*)newFun);
+    }
+
+    template<typename F1, typename F2>
+    Mocker(F1 original, F2 newFun) {
+        setJump(*(void**)&original, (void*)newFun);
+    }
+
+    ~Mocker() {
+        delete jumper;
+    }
+
+private:
+    void setJump(void *originalAddress, void *newAddress) {
         intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
         if (offset < -128 || offset > 127) {
             jumper = new LongJumper(originalAddress, newAddress);
@@ -92,11 +104,6 @@ public:
         }
     }
 
-    ~Mocker() {
-        delete jumper;
-    }
-
-private:
     Jumper *jumper;
 };
 
