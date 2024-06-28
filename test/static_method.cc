@@ -9,6 +9,9 @@ class ClassWithStaticMethod {
     static bool bool_() {
         return false;
     }
+    static bool bool_true() {
+        return true;
+    }
 };
 
 bool return_true() {
@@ -22,7 +25,7 @@ bool return_true() {
 class Mocker {
 
 public:
-    void mock(bool(*original)(), bool(*newFun)()) {
+    Mocker(bool(*original)(), bool(*newFun)()) {
         void* originalAddress = (void*)(original);
         void* newAddress = (void*)(newFun);
 
@@ -34,36 +37,66 @@ public:
             exit(-1);
         }
 
-        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 5;
+        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
 
-        this->originalAddress = originalAddress;
-        this->command = *reinterpret_cast<char*>(originalAddress);
-        this->offset = *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1);
+        if (offset < -128 || offset > 127) {
+            offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 5;
+            this->style = 2;
+            this->originalAddress = originalAddress;
+            this->command = *reinterpret_cast<char*>(originalAddress);
+            this->offset = *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1);
 
-        *reinterpret_cast<char*>(originalAddress) = 0xE9;
-        *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = offset;
-        return;
+            *reinterpret_cast<char*>(originalAddress) = 0xE9;
+            *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = offset;
+        } else {
+            this->style = 1;
+
+            this->originalAddress = originalAddress;
+            this->command = *reinterpret_cast<char*>(originalAddress);
+            this->offset_8 = *(reinterpret_cast<char*>(originalAddress) + 1);
+
+            *reinterpret_cast<char*>(originalAddress) = 0xEB;
+            *(reinterpret_cast<char*>(originalAddress) + 1) = (unsigned char)offset;
+        }
     }
 
     ~Mocker() {
-        *reinterpret_cast<char*>(originalAddress) = this->command;
-        *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = this->offset;
+        switch(this->style) {
+            case 1:
+                *reinterpret_cast<char*>(originalAddress) = this->command;
+                *(reinterpret_cast<char*>(originalAddress) + 1) = this->offset_8;
+                break;
+            default:
+                *reinterpret_cast<char*>(originalAddress) = this->command;
+                *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = this->offset;
+                break;
+        }
     }
 
 private:
-//    std::map<void*, std::vector<char>> backup;
+    int style;
     void *originalAddress;
     char command;
     intptr_t offset;
+    char offset_8;
 };
 
 TEST_GROUP(StaticMethod) {
 };
 
+TEST(StaticMethod, mock_bool_void_by_long_jmp_and_back_to_original_when_mocker_destroyed) {
+    {
+        Mocker mocker(&ClassWithStaticMethod::bool_, &return_true);
+
+        CHECK_TRUE(ClassWithStaticMethod::bool_());
+    }
+
+    CHECK_FALSE(ClassWithStaticMethod::bool_());
+}
+
 TEST(StaticMethod, mock_bool_void_by_short_jmp_and_back_to_original_when_mocker_destroyed) {
     {
-        Mocker mocker;
-        mocker.mock(&ClassWithStaticMethod::bool_, &return_true);
+        Mocker mocker(&ClassWithStaticMethod::bool_, &ClassWithStaticMethod::bool_true);
 
         CHECK_TRUE(ClassWithStaticMethod::bool_());
     }
