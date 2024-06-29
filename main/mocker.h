@@ -82,11 +82,6 @@ public:
 class Mocker {
 
 public:
-    template<typename F>
-    Mocker(F original, F newFun) {
-        setJump((void*)original, (void*)newFun);
-    }
-
     template<typename F1, typename F2>
     Mocker(F1 original, F2 newFun) {
         setJump(*(void**)&original, (void*)newFun);

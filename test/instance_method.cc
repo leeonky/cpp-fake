@@ -10,24 +10,17 @@ class ClassWithInstanceMethod {
     bool bool_() {
         return false;
     }
-    bool bool_true() {
-        return true;
-    }
 };
 
 bool return_true(ClassWithInstanceMethod *instance) {
-printf("%p\n", instance);
     return true;
 }
 
 TEST_GROUP(InstanceMethod) {
 };
 
-
-
-TEST(InstanceMethod, xxx) {
+TEST(InstanceMethod, non_virtual) {
     ClassWithInstanceMethod instance;
-    printf("%p\n", &instance);
     {
         Mocker mocker(&ClassWithInstanceMethod::bool_, &return_true);
 
