@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <stdint.h>
 #include <cstdio>
+#include <cstring>
 
 class PageWriteable {
 public:
@@ -24,36 +25,57 @@ public:
             exit(-1);
         }
     }
+
 private:
     void *pageStart;
 };
 
 class Jumper {
 public:
-    virtual ~Jumper() {}
+    Jumper(void *original, int s): originalAddress(original), size(s) {
+        index = 0;
+        memcpy(backupCode, originalAddress, size);
+    }
+    virtual ~Jumper() {
+        PageWriteable write(originalAddress);
+        memcpy(originalAddress, backupCode, size);
+    }
+
+protected:
+    void *originalAddress;
+    char backupCode[32];
+    int size, index;
+
+    long long offset(void *newAddress) {
+        return reinterpret_cast<long long>(newAddress) - reinterpret_cast<long long>(originalAddress) - size;
+    }
+
+    void patch(char c) {
+        reinterpret_cast<char*>(originalAddress)[index++] = c;
+    }
+
+    void patch4(int32_t i) {
+        *reinterpret_cast<int32_t*>(reinterpret_cast<char*>(originalAddress)+index) = i;
+        index+=4;
+    }
 };
 
 class ShortJumper : public Jumper{
 public:
-    ShortJumper(void *original, void *newAddress): originalAddress(original){
-        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
-        this->command = *reinterpret_cast<char*>(originalAddress);
-        this->offset_8 = *(reinterpret_cast<char*>(originalAddress) + 1);
-
-        PageWriteable write(originalAddress);
-        *reinterpret_cast<char*>(originalAddress) = 0xEB;
-        *(reinterpret_cast<char*>(originalAddress) + 1) = (unsigned char)offset;
+    ShortJumper(void *original, void *newAddress): Jumper(original, 2) {
+        PageWriteable write(original);
+        patch(0xEB);
+        patch(offset(newAddress));
     }
-    ~ShortJumper() {
-        PageWriteable write(originalAddress);
-        *reinterpret_cast<char*>(originalAddress) = this->command;
-        *(reinterpret_cast<char*>(originalAddress) + 1) = this->offset_8;
-    }
+};
 
-private:
-    void *originalAddress;
-    char command;
-    char offset_8;
+class LongJumper : public Jumper{
+public:
+    LongJumper(void *original, void *newAddress): Jumper(original, 5){
+        PageWriteable write(original);
+        patch(0xE9);
+        patch4(offset(newAddress));
+    }
 };
 
 enum JumpPolicy {
@@ -63,31 +85,7 @@ enum JumpPolicy {
     Auto
 };
 
-class LongJumper : public Jumper{
-public:
-    LongJumper(void *original, void *newAddress): originalAddress(original){
-        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 5;
-        this->command = *reinterpret_cast<char*>(originalAddress);
-        this->offset = *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1);
-        PageWriteable write(originalAddress);
-        *reinterpret_cast<char*>(originalAddress) = 0xE9;
-        *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = offset;
-    }
-
-    ~LongJumper() {
-        PageWriteable write(originalAddress);
-        *reinterpret_cast<char*>(originalAddress) = this->command;
-        *reinterpret_cast<intptr_t*>(reinterpret_cast<char*>(originalAddress) + 1) = this->offset;
-    }
-
-    void *originalAddress;
-    char command;
-    intptr_t offset;
-};
-
-
 class Mocker {
-
 public:
     template<typename F1, typename F2>
     Mocker(F1 original, F2 newFun, JumpPolicy policy = Auto) {
