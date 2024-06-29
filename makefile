@@ -114,6 +114,13 @@ CPPUTEST_WARNINGFLAGS += -Wno-format-nonliteral
 CPPUTEST_WARNINGFLAGS += -Wno-shadow
 #CPPUTEST_WARNINGFLAGS += -Wno-missing-field-initializers
 CPPUTEST_WARNINGFLAGS += -Wno-unused-parameter
+
+COMPILER_SUPPORTS_NOEXCEPT := $(shell echo "int main() { return 0; }" > tmp_test.cpp; \
+	g++ -Wno-noexcept-type tmp_test.cpp -o tmp_test.out >/dev/null 2>&1 && echo "yes" || echo "no"; \
+	rm -f tmp_test.cpp tmp_test.out)
+
+CPPUTEST_WARNINGFLAGS += $(if $(filter $(COMPILER_SUPPORTS_NOEXCEPT),yes),-Wno-noexcept-type)
+
 CPPUTEST_CFLAGS += -pedantic
 CPPUTEST_CFLAGS += -Wno-missing-prototypes
 CPPUTEST_CFLAGS += -Wno-strict-prototypes
