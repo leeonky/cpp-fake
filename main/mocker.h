@@ -2,6 +2,8 @@
 #define MOCKER_H
 
 #include <stdexcept>
+#include <stdint.h>
+#include <cstdio>
 
 class PageWriteable {
 public:

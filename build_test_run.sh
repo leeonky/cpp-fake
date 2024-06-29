@@ -12,5 +12,5 @@ echo "Building and running the test..."
 make clean && make all
 
 # Build and run the program
-echo "Building and running the program..."
-make main
+#echo "Building and running the program..."
+#make main

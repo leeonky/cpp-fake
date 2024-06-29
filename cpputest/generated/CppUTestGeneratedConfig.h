@@ -103,11 +103,6 @@
 #define CPPUTEST_HAVE_UNISTD_H 1
 #endif
 
-/* Define to 1 if the system has the type `unsigned long long int'. */
-#ifndef CPPUTEST_HAVE_UNSIGNED_LONG_LONG_INT
-#define CPPUTEST_HAVE_UNSIGNED_LONG_LONG_INT 1
-#endif
-
 /* Define to 1 if you have the `vfork' function. */
 #ifndef CPPUTEST_HAVE_VFORK
 #define CPPUTEST_HAVE_VFORK 1
@@ -142,6 +137,9 @@
 /* memory leak detection disabled */
 /* #undef MEM_LEAK_DETECTION_DISABLED */
 
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+/* #undef NO_MINUS_C_MINUS_O */
+
 /* Name of package */
 #ifndef CPPUTEST_PACKAGE
 #define CPPUTEST_PACKAGE "cpputest"
@@ -165,11 +163,6 @@
 /* Define to the one symbol short name of this package. */
 #ifndef CPPUTEST_PACKAGE_TARNAME
 #define CPPUTEST_PACKAGE_TARNAME "cpputest"
-#endif
-
-/* Define to the home page for this package. */
-#ifndef CPPUTEST_PACKAGE_URL
-#define CPPUTEST_PACKAGE_URL ""
 #endif
 
 /* Define to the version of this package. */

@@ -1,5 +1,5 @@
 
-AC_PREREQ([2.68])
+AC_PREREQ([2.63])
 AC_INIT([CppUTest], [4.0], [https://github.com/cpputest/cpputest])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([subdir-objects])

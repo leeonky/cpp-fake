@@ -122,6 +122,7 @@ CPPUTEST_CFLAGS += -Wno-strict-prototypes
 #CPPUTEST_CXXFLAGS += -Wno-c++98-compat-pedantic
 #CPPUTEST_CXXFLAGS += -Wno-c++98-compat
 CPPUTEST_CPPFLAGS += -DHAVE_CONFIG_H
+CPPUTEST_CPPFLAGS += $(shell echo "int main(){}" | gcc -x c++ -o /dev/null - --std=c++0x >/dev/null 2>&1 && echo "-std=c++0x")
 
 # Coloroze output
 CPPUTEST_EXE_FLAGS += -c
