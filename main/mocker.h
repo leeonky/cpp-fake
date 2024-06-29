@@ -46,8 +46,8 @@ protected:
     char backupCode[32];
     int size, index;
 
-    long long offset(void *newAddress) {
-        return reinterpret_cast<long long>(newAddress) - reinterpret_cast<long long>(originalAddress) - size;
+    uintptr_t offset(void *newAddress) {
+        return reinterpret_cast<uintptr_t>(newAddress) - reinterpret_cast<uintptr_t>(originalAddress) - size;
     }
 
     void patch(char c) {
@@ -75,6 +75,18 @@ public:
         PageWriteable write(original);
         patch(0xE9);
         patch4(offset(newAddress));
+    }
+};
+
+class Long64Jumper : public Jumper{
+public:
+    Long64Jumper(void *original, void *newAddress): Jumper(original, 14){
+        PageWriteable write(original);
+        patch(0xFF);
+        patch(0x25);
+        patch4(0);
+        patch4((int64_t)newAddress);
+        patch4(((int64_t)newAddress)>>32);
     }
 };
 
@@ -106,6 +118,8 @@ private:
                     jumper = new LongJumper(originalAddress, newAddress);
                 break;
             case Long64:
+                    jumper = new Long64Jumper(originalAddress, newAddress);
+                break;
             default:
                 throw std::runtime_error("Cannot hook method!");
                 break;
@@ -122,12 +136,12 @@ private:
     }
 
     JumpPolicy guessPolicyByOffset(void *originalAddress, void *newAddress) {
-        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
-        if (offset >= -128 && offset <= 127) {
+        long long offset = reinterpret_cast<long>(newAddress) - reinterpret_cast<long>(originalAddress) - 2;
+        if (offset >= -128 && offset <= 127)
             return Short;
-        } else {
+        offset = reinterpret_cast<long>(newAddress) - reinterpret_cast<long>(originalAddress) - 5;
+        if (offset >= -2147483648LL && offset <= 2147483647LL)
             return Long;
-        }
         return Long64;
     }
 
