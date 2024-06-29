@@ -3,7 +3,7 @@
 # Build cpputest
 echo "Building cpputest..."
 cd cpputest
-./configure --disable-longlong
+./configure
 make clean && make -j 4 tdd
 cd ..
 
