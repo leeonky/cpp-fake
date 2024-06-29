@@ -125,9 +125,7 @@
 /* #undef INCLUDE_GTEST_TESTS */
 
 /* disable long long */
-#ifndef CPPUTEST_LONG_LONG_DISABLED
-#define CPPUTEST_LONG_LONG_DISABLED 1
-#endif
+/* #undef LONG_LONG_DISABLED */
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #ifndef CPPUTEST_LT_OBJDIR

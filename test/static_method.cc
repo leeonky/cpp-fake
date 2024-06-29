@@ -24,7 +24,7 @@ TEST_GROUP(StaticMethod) {
 
 TEST(StaticMethod, mock_bool_void_by_long_jmp_and_back_to_original_when_mocker_destroyed) {
     {
-        Mocker mocker(&ClassWithStaticMethod::bool_, &return_true);
+        Mocker mocker(&ClassWithStaticMethod::bool_, &return_true, Long);
 
         CHECK_TRUE(ClassWithStaticMethod::bool_());
     }
@@ -34,7 +34,7 @@ TEST(StaticMethod, mock_bool_void_by_long_jmp_and_back_to_original_when_mocker_d
 
 TEST(StaticMethod, mock_bool_void_by_short_jmp_and_back_to_original_when_mocker_destroyed) {
     {
-        Mocker mocker(&ClassWithStaticMethod::bool_, &ClassWithStaticMethod::bool_true);
+        Mocker mocker(&ClassWithStaticMethod::bool_, &ClassWithStaticMethod::bool_true, Short);
 
         CHECK_TRUE(ClassWithStaticMethod::bool_());
     }

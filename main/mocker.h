@@ -56,6 +56,13 @@ private:
     char offset_8;
 };
 
+enum JumpPolicy {
+    Short=1,
+    Long=2,
+    Long64=3,
+    Auto
+};
+
 class LongJumper : public Jumper{
 public:
     LongJumper(void *original, void *newAddress): originalAddress(original){
@@ -83,8 +90,8 @@ class Mocker {
 
 public:
     template<typename F1, typename F2>
-    Mocker(F1 original, F2 newFun) {
-        setJump(*(void**)&original, (void*)newFun);
+    Mocker(F1 original, F2 newFun, JumpPolicy policy = Auto) {
+        setJump(*(void**)&original, (void*)newFun, policy);
     }
 
     ~Mocker() {
@@ -92,13 +99,38 @@ public:
     }
 
 private:
-    void setJump(void *originalAddress, void *newAddress) {
-        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
-        if (offset < -128 || offset > 127) {
-            jumper = new LongJumper(originalAddress, newAddress);
-        } else {
-            jumper = new ShortJumper(originalAddress, newAddress);
+    void setJump(void *originalAddress, void *newAddress, JumpPolicy support) {
+        switch(guessPolicy(originalAddress, newAddress, support)){
+            case Short:
+                    jumper = new ShortJumper(originalAddress, newAddress);
+                break;
+            case Long:
+                    jumper = new LongJumper(originalAddress, newAddress);
+                break;
+            case Long64:
+            default:
+                throw std::runtime_error("Cannot hook method!");
+                break;
         }
+    }
+
+    JumpPolicy guessPolicy(void *originalAddress, void *newAddress, JumpPolicy support) {
+        JumpPolicy policy = guessPolicyByOffset(originalAddress, newAddress);
+        if(policy > support)
+            throw std::runtime_error("Cannot use given jump policy!");
+        if(support != Auto)
+            return support;
+        return policy;
+    }
+
+    JumpPolicy guessPolicyByOffset(void *originalAddress, void *newAddress) {
+        intptr_t offset = reinterpret_cast<char*>(newAddress) - reinterpret_cast<char*>(originalAddress) - 2;
+        if (offset >= -128 && offset <= 127) {
+            return Short;
+        } else {
+            return Long;
+        }
+        return Long64;
     }
 
     Jumper *jumper;
