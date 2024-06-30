@@ -1,8 +1,8 @@
 #include "CppUTest/TestHarness.h"
 
-#include <unistd.h>
-#include <sys/mman.h>
-#include <cstring>
+//#include <unistd.h>
+//#include <sys/mman.h>
+//#include <cstring>
 #include "mocker.h"
 
 class ClassWithInstanceMethod {

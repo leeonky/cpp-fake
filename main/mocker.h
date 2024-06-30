@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <cstdio>
 #include <cstring>
+#include <sys/mman.h>
 
 class PageWriteable {
 public:
