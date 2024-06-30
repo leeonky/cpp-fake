@@ -82,11 +82,13 @@ class Long64Jumper : public Jumper{
 public:
     Long64Jumper(void *original, void *newAddress): Jumper(original, 14){
         PageWriteable write(original);
+#ifdef __x86_64__
         patch(0xFF);
         patch(0x25);
         patch4(0);
         patch4((int64_t)newAddress);
         patch4(((int64_t)newAddress)>>32);
+#endif
     }
 };
 
