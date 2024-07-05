@@ -14,6 +14,14 @@ class ClassWithInstanceMethod {
     bool const_bool() const {
         return false;
     }
+
+    bool overloaded_method() {
+        return false;
+    }
+
+    bool overloaded_method(uint32_t value) {
+        return false;
+    }
 };
 
 class SubClassWithInstanceMethod : public ClassWithInstanceMethod {
@@ -42,6 +50,10 @@ class SubDefineC : public SubDefineA, public SubDefineB {
 };
 
 bool return_true(ClassWithInstanceMethod *instance) {
+    return true;
+}
+
+bool overloaded_return_true(ClassWithInstanceMethod *instance, uint32_t value) {
     return true;
 }
 
@@ -196,4 +208,17 @@ TEST(InstanceMethod, mock_non_virtual_redefined_in_sub_with_multi_base) {
     CHECK_FALSE(((SubDefineA)instance).bool_());
     CHECK_FALSE(((SubDefineB)instance).bool_());
     CHECK_FALSE(((ClassWithInstanceMethod)instance).bool_());
+}
+
+TEST(InstanceMethod, mock_non_virtual_overloading) {
+    ClassWithInstanceMethod instance;
+    {
+        bool (ClassWithInstanceMethod::*methodToBeStub)(uint32_t) = &ClassWithInstanceMethod::overloaded_method;
+        Mocker mocker(methodToBeStub, &overloaded_return_true);
+
+        CHECK_TRUE(instance.overloaded_method(42));
+        CHECK_FALSE(instance.overloaded_method());
+    }
+    CHECK_FALSE(instance.overloaded_method(42));
+    CHECK_FALSE(instance.overloaded_method());
 }
