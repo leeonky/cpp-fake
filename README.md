@@ -23,7 +23,7 @@ bool return_true() {
 
 TEST(StaticMethod, example) {
     {
-        Mocker mocker(&ClassWithStaticMethod::bool_, &return_true, Long);
+        Mocker mocker(&ClassWithStaticMethod::bool_, &return_true);
 
         CHECK_TRUE(ClassWithStaticMethod::bool_());
     }
