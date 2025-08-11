@@ -92,7 +92,7 @@ Goal: Improve internal design per user guidance or self-review (remove duplicati
 
 Test Run Commands (show output):
 ```bash
-make clean && make all && ./cpp-fake
+make clean && make all
 # or end-to-end (rebuild cpputest if needed)
 ./build_test_run.sh
 ```

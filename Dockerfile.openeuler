@@ -1,0 +1,10 @@
+FROM openeuler/openeuler:20.03-lts
+
+RUN yum makecache || dnf makecache || true \
+    && (yum install -y --nogpgcheck gcc gcc-c++ make automake autoconf libtool git pkgconfig which bash || \
+        dnf install -y --nogpgcheck gcc gcc-c++ make automake autoconf libtool git pkgconfig which bash) \
+    && (yum clean all || dnf clean all || true)
+
+WORKDIR /workspace
+
+CMD ["sleep", "infinity"]

@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  ubuntu:
+    build:
+      context: .
+      dockerfile: Dockerfile.ubuntu
+    volumes:
+      - .:/workspace:cached
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+
+  openeuler:
+    build:
+      context: .
+      dockerfile: Dockerfile.openeuler
+    volumes:
+      - .:/workspace:cached
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
